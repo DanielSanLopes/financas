@@ -24,11 +24,11 @@ function AuthProvider({children}){
         then(async (userCredential)=>{
             let uid = userCredential.user.uid
 
-            setDoc (doc (db, "users", uid), {
+           await setDoc (doc (db, "users", uid), {
                 name: name,
                 email: email,
                 saldo:0
-            }).then((data)=>console.log ("Registered in database \n" + data)).catch((error)=>console.error("Some error ocurred: " + error))
+            }).then((data)=>console.log ("Registered in database \n" + console.log("Dados: " + data))).catch((error)=>console.error("Note Registered. Some error ocurred: " + error))
 
             // await addDoc (collection(db, "users"), {
             //     name: name,
@@ -36,7 +36,7 @@ function AuthProvider({children}){
             //     saldo:0
             // })
 
-            setDoc()
+            
 
             let data = {
                 uid:uid,
