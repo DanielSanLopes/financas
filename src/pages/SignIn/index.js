@@ -13,12 +13,18 @@ function SignIn (){
 
     const [email, setEmail] = useState('')
     const [pass, setPass] = useState('')
+    
 
-    const {user} = useContext(AuthContext)
+    const {user, signIn} = useContext(AuthContext)
 
-    function handleLogin(){
-        console.log(user.nome)
-        console.log (user.uid)
+    async function handleLogin(){
+
+
+       
+        
+        await signIn(email, pass)
+
+       return( console.log ("Response: " + user.name))
     }
 
     return(
