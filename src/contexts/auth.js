@@ -1,10 +1,15 @@
-import React, {createContext, useState} from "react";
+import React, {createContext, useState, useEffect} from "react";
 import app, { db } from "../services/FirebaseConfig";
-import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, getAuth, onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
 
 //const firebase = require("firebase");
 require("firebase/firestore");
 import {getFirestore, addDoc, collection, setDoc, doc, connectFirestoreEmulator, getDoc, } from "firebase/firestore"
+import { async } from "@firebase/util";
+
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+
 
 
 
@@ -18,6 +23,11 @@ function AuthProvider({children}){
     const [user, setUser] = useState(null)
     const auth = getAuth()
 
+
+    //Is Signed In
+
+   
+
     //SignIn user
     async function signIn(email, password){
 
@@ -27,16 +37,17 @@ function AuthProvider({children}){
 
             let uid = userCredential.user.uid
 
-            await getDoc(doc(db, "users", uid)).then(async (Response)=>{
+            await getDoc(doc(db, "users", uid)).then(async (response)=>{
                 
                 let data = {
                     uid:uid,
-                    name:Response.data().name,
-                    email:Response.data().email,
-                    saldo: Response.data().saldo
+                    name:response.data().name,
+                    email:response.data().email,
+                    saldo: response.data().saldo
                 }
                 
                 setUser(data)
+                StorageUser(data)
                 
                 
             }).catch((error)=>"Some error ocurred: " + error)
@@ -76,8 +87,9 @@ function AuthProvider({children}){
             }
 
             setUser(data)
+            StorageUser(data)
 
-            return(console.log (user.email))
+            
             
             
             
@@ -85,8 +97,26 @@ function AuthProvider({children}){
         
     }
 
+    async function StorageUser(data){
+        await AsyncStorage.setItem("auth_user", JSON.stringify(data))
+
+    }
+
+    useEffect(()=>{
+        async function LoadStorage(){
+            const storagedUser = await AsyncStorage.getItem("auth_user")
+
+            if (storagedUser){
+                setUser(JSON.parse(storagedUser))
+            }
+        }
+
+        LoadStorage()
+
+    },[])
+
     return(
-        <AuthContext.Provider value={{signed: !!user, user, signUp, signIn}}>
+        <AuthContext.Provider value={{signed: !!user, user, signUp, signIn, }}>
             {children}
 
         </AuthContext.Provider>
