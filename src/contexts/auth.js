@@ -1,6 +1,6 @@
 import React, {createContext, useState, useEffect} from "react";
 import app, { db } from "../services/FirebaseConfig";
-import { createUserWithEmailAndPassword, getAuth, onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "firebase/auth";
 
 //const firebase = require("firebase");
 require("firebase/firestore");
@@ -22,6 +22,8 @@ function AuthProvider({children}){
 
     const [user, setUser] = useState(null)
     const auth = getAuth()
+    const [loading, setLoading] = useState(true)
+   
 
 
     //Is Signed In
@@ -30,6 +32,8 @@ function AuthProvider({children}){
 
     //SignIn user
     async function signIn(email, password){
+
+        setLoading(true)
 
         await signInWithEmailAndPassword(auth, email, password)
         .then(async (userCredential)=>{
@@ -48,6 +52,7 @@ function AuthProvider({children}){
                 
                 setUser(data)
                 StorageUser(data)
+                setLoading(false)
                 
                 
             }).catch((error)=>"Some error ocurred: " + error)
@@ -58,6 +63,7 @@ function AuthProvider({children}){
     
     //Create user and cadaster
     async function signUp (email, Password, name){
+        setLoading(true)
         await createUserWithEmailAndPassword(auth, email, Password).
         then(async (userCredential)=>{
             let uid = userCredential.user.uid
@@ -88,6 +94,7 @@ function AuthProvider({children}){
 
             setUser(data)
             StorageUser(data)
+            setLoading(false)
 
             
             
@@ -103,20 +110,31 @@ function AuthProvider({children}){
     }
 
     useEffect(()=>{
+       
+
         async function LoadStorage(){
             const storagedUser = await AsyncStorage.getItem("auth_user")
 
             if (storagedUser){
                 setUser(JSON.parse(storagedUser))
+                
             }
+            setLoading(false)
         }
 
         LoadStorage()
 
     },[])
 
+    async function SignOut(){
+        await signOut(auth)
+        await AsyncStorage.removeItem("auth_user").then(()=>setUser(null))
+        setLoading(false)
+
+    }
+
     return(
-        <AuthContext.Provider value={{signed: !!user, user, signUp, signIn, }}>
+        <AuthContext.Provider value={{signed: !!user, user, signUp, signIn, loading, SignOut, setLoading }}>
             {children}
 
         </AuthContext.Provider>
