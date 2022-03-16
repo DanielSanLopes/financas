@@ -3,6 +3,8 @@ import AuthRoutes from "./auth.routes";
 import AppRoutes from "./app.routes";
 import {AuthContext} from '../contexts/auth'
 import {View, ActivityIndicator} from 'react-native'
+import {createDrawerNavigator} from '@react-navigation/drawer'
+import 'react-native-gesture-handler'
 
 function Routes(){
 

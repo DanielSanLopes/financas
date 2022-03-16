@@ -8,7 +8,7 @@ import { AuthContext } from '../../contexts/auth'
 
 function Home (){
 
-    const {user, SignOut} = useContext (AuthContext)
+    const {user, SignOut, setLoading} = useContext (AuthContext)
     
     
 
